@@ -87,6 +87,7 @@ function initVertexBuffers(gl) {
 function draw(gl, n, currentAngle, modelMatrix, u_MOdelMatrix) {
     //设置旋转矩阵
     modelMatrix.setRotate(currentAngle, 0, 0, 1);
+    modelMatrix.translate(0.35, 0, 0);
     gl.uniformMatrix4fv( u_MOdelMatrix, false, modelMatrix.elements);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, n);
