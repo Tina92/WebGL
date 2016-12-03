@@ -13,6 +13,7 @@ var VSHADER_SOURCE =
     '}\n';
 //FSHADER
 var FSHADER_SOURCE =
+    'precision mediump float;\n' +
     'varying vec4 v_Color;\n' +
     'void main() {\n'+
     ' gl_FragColor = v_Color;\n'+ //设置颜色
@@ -39,7 +40,7 @@ function main() {
     gl.drawArrays(gl.POINTS, 0, n);
 }
 
-function initVertexBuffers() {
+function initVertexBuffers(gl) {
     var verticesColors = new Float32Array([
         //顶点坐标和颜色
         0.0, 0.5, 1.0, 0.0, 0.0,
@@ -47,13 +48,13 @@ function initVertexBuffers() {
         0.5, -0.5, 0.0, 0.0, 1.0
     ]);
     var n = 3;
-    var vertexSizeBuffer = gl.createBuffer();
-    if(!vertexSizeBuffer){
+    var vertexColorBuffer = gl.createBuffer();
+    if(!vertexColorBuffer){
         console.log('Failed buffer');
         return;
     }
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexSizeBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, verticesSizes, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, verticesColors, gl.STATIC_DRAW);
 
     var FSIZE = verticesColors.BYTES_PER_ELEMENT;
     var a_Position = gl.getAttribLocation(gl.program,'a_Position');
@@ -64,11 +65,11 @@ function initVertexBuffers() {
     gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, FSIZE * 5, 0);
     gl.enableVertexAttribArray(a_Position);
     var a_Color = gl.getAttribLocation(gl.program,'a_Color');
-    if (a_PointSize<0){
+    if (a_Color<0){
         console.log('Failed a_Color');
         return;
     }
-    gl.vertexAttribPointer(a_Color, 1, gl.FLOAT, false, FSIZE * 5, FSIZE * 2);
+    gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 5, FSIZE * 2);
     gl.enableVertexAttribArray(a_Color);
 
     return n;
