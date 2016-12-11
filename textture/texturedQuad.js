@@ -81,14 +81,24 @@ function initVertexBuffers(gl) {
 }
 function initTextures(gl, n) {
     var texture = gl.createTexture();
-    //
-    var u_Sampler = gl.getUniformLocation(gl.program,'u_Sampler');
-    //
-    var image = new Image(); //
-    //
+    if(!texture){
+        console.log("Failed texture");
+        return;
+    }
+    var u_Sampler = gl.getUniformLocation(gl.program,'u_Sampler');//获取u_Sampler的存储位置
+    if(u_Sampler<0){
+        console.log('Failed u_Sampler');
+        return;
+    }
+    var image = new Image(); //创建纹理对象
+    if(!image){
+        console.log('Failede image');
+        return;
+    }
     image.onload = function () {
         loadTexture(gl, n, texture, u_Sampler, image);
-    };//
+    };//注册图像加载事件的响应函数
+    //浏览器开始加载图像
     image.src='screenshot.png';
 
     return true;
@@ -96,17 +106,17 @@ function initTextures(gl, n) {
 }
 
 function loadTexture(gl, n, texture, u_Sampler, image) {
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); //
-    //
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); //对纹理图像进行Y轴反转
+    //开启0号纹理单元
     gl.activeTexture(gl.TEXTURE0);
-    //
+    //向target绑定纹理对象
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    //
+    //配置纹理参数
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    //
+    //配置纹理图像
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
-    //
+    //将0号纹理传递给着色器
     gl.uniform1i(u_Sampler, 0);
-    //
+    //绘制矩形
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, n);
 }
