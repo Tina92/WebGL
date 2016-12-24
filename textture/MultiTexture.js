@@ -11,10 +11,13 @@ var VSHADER_SOURCE =
     '}\n';
 var FSHADER_SOURCE =
     'precision mediump float;\n' +
-    'uniform sampler2D u_Sampler;\n' +
+    'uniform sampler2D u_Sampler0;\n' +
+    'uniform sampler2D u_Sampler1;\n' +
     'varying vec2 v_TexCoord;\n' +
     'void main() {\n' +
-    '   gl_FragColor = texture2D(u_Sampler, v_TexCoord);\n' +
+    '   vec4 color0 = texture2D(u_Sampler0, v_TexCoord);\n' +
+    '   vec4 color1 = texture2D(u_Sampler1, v_TexCoord);\n' +
+    '   gl_FragColor = color0 * color1;\n' +
     '}\n';
 
 function main() {
@@ -46,10 +49,10 @@ function main() {
 function initVertexBuffers(gl) {
     var verticesTexCoords = new Float32Array([
         //顶点坐标，纹理坐标
-        -0.5, 0.5, -0.3, 1.7,
-        -0.5, -0.5, -0.3, -0.2,
-        0.5, 0.5, 1.7, 1.7,
-        0.5, -0.5, 1.7, -0.2,
+        -0.5, 0.5, 0.0, 1.0,
+        -0.5, -0.5, 0.0, 0.0,
+        0.5, 0.5, 1.0, 1.0,
+        0.5, -0.5, 1.0, 0.0,
     ]);
     var n = 4; //顶点数目
     var vertexTexCoordBuffer = gl.createBuffer();
@@ -80,44 +83,64 @@ function initVertexBuffers(gl) {
     return n;
 }
 function initTextures(gl, n) {
-    var texture = gl.createTexture();
-    if(!texture){
+    var texture0 = gl.createTexture();
+    var texture1 = gl.createTexture();
+    if(!texture0 || !texture1){
         console.log("Failed texture");
         return;
     }
-    var u_Sampler = gl.getUniformLocation(gl.program,'u_Sampler');//获取u_Sampler的存储位置
-    if(u_Sampler<0){
+    var u_Sampler0 = gl.getUniformLocation(gl.program,'u_Sampler0');//获取u_Sampler的存储位置
+    var u_Sampler1 = gl.getUniformLocation(gl.program,'u_Sampler1');//获取u_Sampler的存储位置
+    if(u_Sampler0 < 0 || u_Sampler1 < 0 ){
         console.log('Failed u_Sampler');
         return;
     }
-    var image = new Image(); //创建纹理对象
-    if(!image){
+    var image0 = new Image(); //创建纹理对象
+    var image1 = new Image(); //创建纹理对象
+    if(!image0 || !image1){
         console.log('Failede image');
         return;
     }
-    image.onload = function () {
-        loadTexture(gl, n, texture, u_Sampler, image);
+    image0.onload = function () {
+        loadTexture(gl, n, texture0, u_Sampler0, image0, 0);
+    };//注册图像加载事件的响应函数
+    image1.onload = function () {
+        loadTexture(gl, n, texture1, u_Sampler1, image1, 1);
     };//注册图像加载事件的响应函数
     //浏览器开始加载图像
-    image.src='screenshot.png';
+    image0.src='screenshot.png';
+    image1.src='front.jpg';
 
     return true;
 
 }
+var g_texUnit0 = false; g_texUnit1 = false;
 
-function loadTexture(gl, n, texture, u_Sampler, image) {
+function loadTexture(gl, n, texture, u_Sampler, image, texUnit) {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); //对纹理图像进行Y轴反转
     //开启0号纹理单元
-    gl.activeTexture(gl.TEXTURE0);
+    if (texUnit == 0){
+        gl.activeTexture(gl.TEXTURE0);
+        g_texUnit0 = true;
+    }else {
+        gl.activeTexture(gl.TEXTURE1);
+        g_texUnit1 = true;
+    }
     //向target绑定纹理对象
     gl.bindTexture(gl.TEXTURE_2D, texture);
     //配置纹理参数
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     //配置纹理图像
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
     //将0号纹理传递给着色器
-    gl.uniform1i(u_Sampler, 0);
+    gl.uniform1i(u_Sampler, texUnit);
+    if(u_Sampler){
+        console.log('Failed u_Sampler');
+        return;
+    }
     //绘制矩形
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, n);
+    if (g_texUnit0 && g_texUnit1) {
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, n);
+    }
+
 }
