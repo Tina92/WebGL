@@ -5,12 +5,14 @@
 var VSHADER_SOURCE =
     'attribute vec4 a_Position;\n' +
     'attribute vec4 a_Color;\n' +
-    'uniform mat4 u_ModelMatrix;\n' +
-    'uniform mat4 u_ViewMatrix;\n' +
-    'uniform mat4 u_ProjMatrix;\n' +
+    // 'uniform mat4 u_ModelMatrix;\n' +
+    // 'uniform mat4 u_ViewMatrix;\n' +
+    // 'uniform mat4 u_ProjMatrix;\n' +
+    'uniform mat4 u_MvpMatrix;\n' +
     'varying vec4 v_Color;\n' + //varying变量
     'void main() {\n' +
-    'gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;\n' +
+    //'gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;\n' +
+    'gl_Position = u_MvpMatrix * a_Position;\n' +
     'v_Color = a_Color;\n' + //将数据传给片元着色器
     '}\n';
 //FSHADER
@@ -37,30 +39,40 @@ function main() {
         console.log('Failed n');
         return;
     }
-    var u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
-    var u_ProjMatrix = gl.getUniformLocation(gl.program, 'u_ProjMatrix');
-    var u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
-    if(!u_ViewMatrix || !u_ModelMatrix || !u_ProjMatrix){
-        console.log('Failed u_ViewMatrix');
+    // var u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
+    // var u_ProjMatrix = gl.getUniformLocation(gl.program, 'u_ProjMatrix');
+    // var u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
+    var u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
+    // if(!u_ViewMatrix || !u_ModelMatrix || !u_ProjMatrix){
+    //     console.log('Failed u_ViewMatrix');
+    //     return;
+    // }
+    if(!u_MvpMatrix){
+        console.log('Failed u_MvpMatrix');
         return;
     }
     //设置视点，视线和上方向
     var viewMatrix = new Matrix4();//视图矩阵
     var projMatrix = new Matrix4();//投影矩阵
     var modelMatrix = new Matrix4();//模型矩阵
+    var mvpMatrix = new Matrix4();
     modelMatrix.setTranslate(0.75, 0, 0);
     viewMatrix.setLookAt(0, 0, 5, 0, 0, -100, 0, 1, 0);
     projMatrix.setPerspective(30, canvas.width/canvas.height, 1, 100);
+
+    mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
     // //将视图矩阵传给u_ViewMatrix变量
-    gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
-    gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
-    gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
+    // gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+    // gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
+    // gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
+    gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, n);//绘制右一侧的
 
     modelMatrix.setTranslate(-0.75, 0, 0);
-    gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+    mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
+    gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
     gl.drawArrays(gl.TRIANGLES, 0, n);//绘制左一侧的
 }
 
