@@ -1,5 +1,5 @@
 /**
- * Created by jiangwei on 2017/02/09.
+ * Created by jiangwei on 2017/02/11.
  */
 //VSHADER
 var VSHADER_SOURCE =
@@ -85,7 +85,9 @@ function main() {
 
 var ANGLE_STEP = 3.0;
 var g_arm1Angle = 90.0;
-var g_joint1Angle = 0.0;
+var g_joint1Angle = 45.0;
+var g_joint2Angle = 0.0;
+var g_joint3Angle = 0.0;
 
 function keydown(ev, gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix) {
     switch (ev.keyCode){
@@ -101,6 +103,20 @@ function keydown(ev, gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix) {
         case 37:
             g_arm1Angle = (g_arm1Angle - ANGLE_STEP) % 360;
             break;
+        case 90:
+            g_joint2Angle = (g_joint2Angle + ANGLE_STEP ) % 360;
+            break;
+        case  88:
+            g_joint2Angle = (g_joint2Angle - ANGLE_STEP ) % 360;
+            break;
+        case  86:
+            if (g_joint3Angle < 60.0)
+                g_joint3Angle = (g_joint3Angle + ANGLE_STEP) % 360;
+            break;
+        case 67:
+            if (g_joint3Angle > -60.0)
+                g_joint3Angle = (g_joint3Angle - ANGLE_STEP) % 360;
+            break;
         default: return;
     }
     draw(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);
@@ -108,20 +124,20 @@ function keydown(ev, gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix) {
 
 function initVertexBuffers(gl) {
     var vertices = new Float32Array([//顶点坐标
-        1.5, 10.0, 1.5, -1.5, 10.0, 1.5, -1.5, 0.0, 1.5, 1.5, 0.0, 1.5,
-        1.5, 10.0, 1.5, 1.5, 0.0, 1.5, 1.5, 0.0, -1.5, 1.5, 10.0, -1.5,
-        1.5, 10.0, 1.5, 1.5, 10.0, -1.5, -1.5, 10.0, -1.5, -1.5, 10.0, 1.5,
-        -1.5, 10.0, 1.5, -1.5, 0.0, 1.5, -1.5, 0.0, -1.5, -1.5, 10.0, -1.5,
-        -1.5, 0.0, 1.5, 1.5, 0.0, 1.5, 1.5, 0.0, -1.5, -1.5, 0.0, -1.5,
-        1.5, 0.0, -1.5, -1.5, 0.0, -1.5, -1.5, 10.0, -1.5, 1.5, 10.0, -1.5
+        1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0,
+        1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0,
+        -1.0, -1.0,1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0, -1.0, -1.0,
+        -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0,
+        1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0
     ]);
     var colors = new Float32Array([//颜色
-        1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-        1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-        1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-        1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-        1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-        1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
+        1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0,
+        1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0,
+        1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0,
+        1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0,
+        1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0,
+        1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0
 
     ]);
     var indices = new Uint8Array([
@@ -180,19 +196,52 @@ function initArrayBuffer(gl, data, num, type, attribute) {
 var g_modelMatrix = new Matrix4(), g_mvpMatrix = new Matrix4();
 
 function draw(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix) {
-    var armlLength = 10.0;
-    g_modelMatrix.setTranslate(0.0, -12.0, 0.0);
-    g_modelMatrix.rotate(g_arm1Angle, 0.0, 1.0, 0.0);
-    drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    //绘制基座
+    var baseHeight = 2.0;
+    g_modelMatrix.setTranslate(0.0, -12.0, 0.0);
+    drawBox(gl, n, 10.0, baseHeight, 10.0, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);
+    //arm1
+    var armlLength = 10.0;
+    g_modelMatrix.translate(0.0, baseHeight, 0.0);
+    g_modelMatrix.rotate(g_arm1Angle, 0.0, 1.0, 0.0);
+    drawBox(gl, n, 3.0, armlLength, 3.0, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);
+    //arm2
     g_modelMatrix.translate(0.0, armlLength, 0.0);
     g_modelMatrix.rotate(g_joint1Angle, 0.0, 0.0, 1.0);
     g_modelMatrix.scale(1.3, 1.0, 1.3);
-    drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);
+    drawBox(gl, n, 3.0, armlLength, 3.0, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);
+    //apalm
+    var palmLength = 2.0;
+    g_modelMatrix.translate(0.0, armlLength, 0,0);
+    g_modelMatrix.rotate(g_joint2Angle, 0.0, 1.0, 0.0);
+    drawBox(gl, n, palmLength, palmLength, 5.0, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);
+    //finger1
+    pushMatrix(g_modelMatrix);
+    g_modelMatrix.translate(0.0, palmLength, 2.0);
+    g_modelMatrix.rotate(g_joint3Angle, 1.0, 0.0, 0.0);
+    drawBox(gl, n, 1.0, 2.0, 1.0, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);
+    g_modelMatrix = popMatrix();
+    //finger2
+    g_modelMatrix.translate(0.0, palmLength, -2.0);
+    g_modelMatrix.rotate(-g_joint3Angle, 1.0, 0.0, 0.0);
+    drawBox(gl, n, 1.0, 2.0, 1.0, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);
 }
 
-var g_normalMatrix = new Matrix4();
-function drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix) {
+var g_matrixStack = []; //存储矩阵的栈
+function pushMatrix(m) {
+    var m2 = new Matrix4(m);
+    g_matrixStack.push(m2);
+}
+function popMatrix() {
+    return g_matrixStack.pop();
+}
+
+var g_normalMatrix = new Matrix4();//变换法线的矩阵
+function drawBox(gl, n, width, height, depth, viewProjMatrix, u_MvpMatrix, u_NormalMatrix) {
+    pushMatrix(g_modelMatrix);//保存模型矩阵
+    g_modelMatrix.scale(width, height, depth);
     g_mvpMatrix.set(viewProjMatrix);
     g_mvpMatrix.multiply(g_modelMatrix);
     gl.uniformMatrix4fv(u_MvpMatrix, false, g_mvpMatrix.elements);
@@ -200,4 +249,5 @@ function drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix) {
     g_normalMatrix.transpose();
     gl.uniformMatrix4fv(u_NormalMatrix, false, g_normalMatrix.elements);
     gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
+    g_modelMatrix = popMatrix();//获取之前保存的矩阵
 }
